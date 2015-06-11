@@ -1,10 +1,15 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center">User {{ user }}</h2>
+    <h2 align="center" style="color: coral">User {{ user }}</h2>
 
         <div align="center">
-            <table border="1">
+            <p>
+                Age: {{ age }}<br />
+                Gender: {{ gender }}<br />
+                Zip Code: {{ zipcode }}
+            </p>
+            <table border="1" bgcolor="#fffacd">
                 <th>Movie</th>
                 <th>Rating</th>
                 {% for tup in ratings %}

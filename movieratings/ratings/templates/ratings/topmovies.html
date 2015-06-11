@@ -1,16 +1,16 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center">Top Movies</h2>
+    <h2 align="center" style="color: coral">Top Movies</h2>
 
         <div align="center">
-            <table border="1">
+            <table border="1" bgcolor="#fffacd">
                 <th>Movie</th>
                 <th>Rating</th>
                 {% for tup in movs %}
                     <tr>
-                        <td><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1 }}</a></td>
-                        <td>{{ tup.0.average_rating }}</td>
+                        <td><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1.title }}</a></td>
+                        <td>{{ tup.0.average_rating|floatformat:"2" }}</td>
                     </tr>
                 {% endfor %}
             </table>

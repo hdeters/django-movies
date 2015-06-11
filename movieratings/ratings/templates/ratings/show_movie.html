@@ -1,10 +1,11 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center">{{ movie.title }}</h2>
+    <h2 align="center" style="color: coral">{{ movie.title }}</h2>
 
         <div align="center">
-            <table border="1">
+            <h4>Average Rating: {{ average|floatformat:"2" }}</h4>
+            <table border="1" bgcolor="#fffacd">
                 <th>User</th>
                 <th>Rating</th>
                 {% for tup in ratings %}

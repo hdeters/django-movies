@@ -6,10 +6,15 @@ from .models import Movie, Rater, Rating
 # Create your views here.
 
 def top_movies(request):
-    avg_movs = Rating.ratings.values("movieid").annotate(average_rating=Avg('rating'))
-    top_movs = avg_movs.order_by("-average_rating")[0:20]
-    mov_obs = [Movie.movies.get(pk=mov["movieid"]) for mov in top_movs]
-    zipped = zip(top_movs, mov_obs)
+    """top_movies=Movie.objects.annotat(
+    rating_count=Count('rating'),
+    avg_rating=Avg('rating__rating'),
+    ).filter(rating_count__gte=10).order_by('avg_rating)[:10]
+    return render(request, 'movies....)"""
+    avg_movs = Rating.ratings.values("movieid").annotate(average_rating=Avg('rating')).order_by("-average_rating")
+    top = [mov for mov in avg_movs if Rating.ratings.filter(movieid=mov['movieid']).count() > 7]
+    mov_obs = [Movie.movies.get(pk=mov["movieid"]) for mov in top][0:20]
+    zipped = zip(top, mov_obs)
     return render(request,
                   "ratings/topmovies.html",
                   {"movs": zipped})
