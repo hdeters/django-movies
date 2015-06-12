@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
@@ -8,12 +9,13 @@ class Movie(models.Model):
 
     def __str__(self):
         return "{}: {}".format(self.id, self.title)
-    
+
 
 class Rater(models.Model):
     age = models.IntegerField()
     gender = models.CharField(max_length=1)
     zipcode = models.CharField(max_length=10)
+    user = models.OneToOneField(User, null=True)
     raters = models.Manager()
 
     def __str__(self):
@@ -25,3 +27,10 @@ class Rating(models.Model):
     movieid = models.ForeignKey(Movie)
     rating = models.IntegerField()
     ratings = models.Manager()
+
+
+def create_users():
+    for rater in Rater.raters.all():
+        user = User.objects.create_user('{}'.format(rater.id), '{}@emailaddress.net'.format(rater.id), 'password')
+        rater.user = user
+        rater.save()

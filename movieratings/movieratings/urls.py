@@ -16,10 +16,15 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from ratings import views as ratings_views
+from django.contrib.auth import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^topmovies/', ratings_views.top_movies, name="topmovies"),
+    url(r'index/', ratings_views.index, name="index"),
     url(r'^user/(?P<user_id>\d+)$', ratings_views.show_user, name="show_user"),
-    url(r'^movie/(?P<movie_id>\d+)$', ratings_views.show_movie, name="show_movie")
+    url(r'^rate/(?P<movie_id>\d*)$', ratings_views.rate_movie, name="rate_movie"),
+    url(r'^movie/(?P<movie_id>\d+)$', ratings_views.show_movie, name="show_movie"),
+    url(r'^login/$', views.login, {'template_name': 'ratings/login.html'}, name="login"),
+    url(r'^logout/$', views.logout, {'next_page': 'login'}, name='logout'),
+    url(r'^register/$', ratings_views.user_register, name="user_register"),
 ]
