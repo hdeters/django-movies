@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+{% extends "ratings/base.html" %}
 
-</body>
-</html>
+{% block content %}
+    <h2>Rate Movie</h2>
+    <p>{{ request.user.get_username }}</p>
+
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ rate_form.as_p }}
+
+        <!-- Provide a button to click to submit the form. -->
+        <input type="submit" name="submit" value="Rate"/>
+    </form>
+{% endblock %}

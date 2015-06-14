@@ -2,16 +2,29 @@
 
 {% block content %}
     <h2 align="center" style="color: coral">Top Movies</h2>
+    <p>{{ movs.1 }}</p>
 
         <div align="center">
             <table border="1" bgcolor="#fffacd">
                 <th>Movie</th>
                 <th>Rating</th>
+                {% if request.user.is_authenticated %}
+                    <th>Seen</th>
+                {% endif %}
                 {% for tup in movs %}
                     <tr>
                         <td><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1.title }}</a></td>
                         <td>{{ tup.0.average_rating|floatformat:"2" }}</td>
+                        {% if request.user.is_authenticated %}
+                            <td>>{{ tup.3|yesno:"Seen,Not_Seen" }}</td>
+                        {% endif %}
                     </tr>
+{#                {% for tup in movs %}#}
+{#                    <tr>#}
+{#                        <td><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1.title }}</a></td>#}
+{#                        <td>{{ tup.0.average_rating|floatformat:"2" }}</td>#}
+{#                        <td>{{ tup.0.average_rating|floatformat:"2" }}</td>#}
+{#                    </tr>#}
                 {% endfor %}
             </table>
 

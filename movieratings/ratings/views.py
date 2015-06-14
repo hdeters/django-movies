@@ -15,10 +15,19 @@ def index(request):
     avg_movs = Rating.ratings.values("movieid").annotate(average_rating=Avg('rating')).order_by("-average_rating")
     top = [mov for mov in avg_movs if Rating.ratings.filter(movieid=mov['movieid']).count() > 7]
     mov_obs = [Movie.movies.get(pk=mov["movieid"]) for mov in top][0:20]
-    zipped = zip(top, mov_obs)
-    return render(request,
+    if request.user.is_authenticated():
+        current_user = str(request.user.get_username())
+        seen = [Rating.ratings.filter(movieid=mov.id, userid=current_user).exists() for mov in mov_obs]
+        zipped = zip(top, mov_obs, seen)
+        return render(request,
+                    "ratings/index.html",
+                    {"movs": zipped})
+    else:
+        zipped = zip(top, mov_obs)
+        return render(request,
                   "ratings/index.html",
                   {"movs": zipped})
+
 
 
 def show_user(request, user_id):
@@ -73,22 +82,17 @@ def show_movie(request, movie_id):
                    "user_rating": user_rating,})
 
 def rate_movie(request, movie_id):
-    current_user = request.user
-    ratings = Rating.ratings.filter(movieid=movie_id)
-    list_of_raters = [str(rate.userid.id) for rate in ratings]
-    if current_user.get_username() in list_of_raters:
-        updating = True
-    else:
-        updating = False
-    old_rating = Rating.ratings.filter(movieid=movie_id).get(userid=current_user.id)
     if request.user.is_authenticated():
-        if updating:
+        current_user = str(request.user.get_username())
+        if Rating.ratings.filter(movieid=movie_id, userid=current_user).exists():
+            old_rating = Rating.ratings.filter(movieid=movie_id).get(userid=current_user)
             if request.method == "GET":
-                rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user.get_username()}, instance=old_rating)
+                rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user}, instance=old_rating)
                 return render(request, "ratings/rate_movie.html", {'rate_form': rate_form, 'movie_var': movie_id,})
             elif request.method == "POST":
-                rate_form = NewRatingForm(request.POST, initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user.get_username()}, instance=old_rating)
+                rate_form = NewRatingForm(request.POST, initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user}, instance=old_rating)
                 if rate_form.is_valid():
+                    rate_form.save()
                     old_rating.save()
                     messages.add_message(
                     request,
@@ -97,10 +101,10 @@ def rate_movie(request, movie_id):
                 return redirect('/movie/{}'.format(movie_id))
         else:
             if request.method == "GET":
-                rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user.get_username()})
+                rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user})
                 return render(request, "ratings/rate_movie.html", {'rate_form': rate_form, 'movie_var': movie_id,})
             elif request.method == "POST":
-                rate_form = NewRatingForm(request.POST, initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user.get_username()})
+                rate_form = NewRatingForm(request.POST, initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user})
                 if rate_form.is_valid():
                     new_rate = rate_form.save(commit=False)
                     new_rate.userid = request.user.rater

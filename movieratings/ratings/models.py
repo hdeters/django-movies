@@ -31,6 +31,6 @@ class Rating(models.Model):
 
 def create_users():
     for rater in Rater.raters.all():
-        user = User.objects.create_user('{}'.format(rater.id), '{}@emailaddress.net'.format(rater.id), 'password')
+        user = User.objects.create_user(username = '{}'.format(rater.id), email = '{}@emailaddress.net'.format(rater.id), password = 'password')
         rater.user = user
         rater.save()
