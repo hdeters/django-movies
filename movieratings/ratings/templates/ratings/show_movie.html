@@ -16,7 +16,7 @@
                 <th>Rating</th>
                 {% for tup in ratings %}
                 <tr>
-                    <td><a href="{% url 'show_user' tup.1 %}">{{ tup.1 }}</a></td>
+                    <td><a href="{% url 'show_user' tup.1 %}">{{ tup.1.user.username }}</a></td>
                     <td>{{ tup.0 }}</td>
                 </tr>
                 {% endfor %}

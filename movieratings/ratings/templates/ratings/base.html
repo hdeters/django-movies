@@ -8,13 +8,15 @@
         a:visited {color: blue}
         table { box-shadow: 3px 3px 3px #999 }
         footer { padding-top: 20px }
+        header {font-family: fantasy}
     </style>
 
     {% if request.user.is_authenticated %}
-            <p>User {{ user }}</p>
+            <p>User {{ request.user.get_username }}</p>
             <a href="{% url 'logout' %}">Logout</a>
         {% else %}
-            <a href="{% url 'login' %}?next={{request.path}}">Login</a>
+            <a href="{% url 'login' %}?next={{ request.path }}" style="text-decoration:none">Login</a> |
+            <a href="{% url 'user_register' %}?next={{ request.path }}" style="text-decoration:none">Register</a>
     {% endif %}
 
 
