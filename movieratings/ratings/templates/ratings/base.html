@@ -1,48 +1,56 @@
+{% load staticfiles %}
+{% load bootstrap3 %}
 <!DOCTYPE html>
 <html>
 <head lang="en">
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery=1 %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static "ratings/style.css" %}"/>
     <meta charset="UTF-8">
     <title></title>
-    <style>
-        body {background-color:cyan}
-        a:visited {color: blue}
-        table { box-shadow: 3px 3px 3px #999 }
-        footer { padding-top: 20px }
-        header {font-family: fantasy}
-    </style>
-
-    {% if request.user.is_authenticated %}
-            <p>User <a href="{% url 'show_user' request.user.rater.id %}">{{ request.user.get_username }}</a></p>
-            <a href="{% url 'logout' %}">Logout</a>
-        {% else %}
-            <a href="{% url 'login' %}?next={{ request.path }}" style="text-decoration:none">Login</a> |
-            <a href="{% url 'user_register' %}?next={{ request.path }}" style="text-decoration:none">Register</a>
-    {% endif %}
-
-
 </head>
 <body>
-<div>
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
-                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-                        Important:
-                    {% endif %}
-                    {{ message }}
-                </li>
-            {% endfor %}
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <img class = "navbar-brand" src={% static "clapper2.png" %}>
+            <a class="navbar-brand" href="{% url 'index' %}">Movie Ratings</a>
+        </div>
+        <ul class="nav navbar-nav navbar-left">
+            <li><a href="{% url "freq_rated" %}">Most Ratings</a></li>
+            <li><a href="{% url "show_genres" %}">Genres</a></li>
         </ul>
-    {% endif %}
+
+        <ul class="nav navbar-nav navbar-right">
+            {% if request.user.is_authenticated %}
+                <li>
+                    <a href="{% url 'show_user' request.user.rater.id %}">{{ request.user.username }}</a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}">Logout</a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="{% url "login" %}?next={{ request.path }}">Login</a>
+                </li>
+                <li>
+                    <a href="{% url "user_register" %}">Register</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    {% bootstrap_messages %}
+    <header>
+    </header>
+    {% block content %}
+    {% endblock %}
+
 </div>
-<header>
-    <h1 align="center"><a href="{% url 'index' %}">Movie Ratings</a></h1>
-</header>
-{% block content %}
-{% endblock %}
-<footer align="center">
-    <strong>Created from the MovieLens 1 million ratings dataset</strong>
-</footer>
+
 </body>
+<footer>
+</footer>
 </html>

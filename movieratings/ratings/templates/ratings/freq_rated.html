@@ -1,38 +1,39 @@
 {% extends "ratings/base.html" %}
+{% load staticfiles %}
 
 {% block content %}
-    <h2 align="center" style="color: coral">Most Frequently Rated Movies</h2>
-    <h2 align="center" style="color: coral"><a href="{% url 'show_genres' %}">Genres</a></h2>
-    <h2 align="center" style="color: coral"><a href="{% url 'index' %}">Top Movies</a></h2>
+    <h2 align="center">Most Frequently Rated Movies</h2>
 
-        <div align="center">
+    <div align="center">
 
-            <table border="1" bgcolor="#fffacd">
-                <th>Movie</th>
-                <th>Number of Ratings</th>
-                {% if request.user.is_authenticated %}
-                    <th>Seen</th>
-                    {% for tup in top_movies %}
-                        <tr>
-                            <td><a href="{% url 'show_movie' tup.0.id %}">{{ tup.0.title }}</a></td>
-                            <td>{{ tup.0.rating_count }}</td>
-                                {% if tup.1 %}
-                                    <td>Seen It</td>
-                                {% else %}
-                                    <td><a href="{% url 'show_movie' tup.0.id %}">Check It Out</a></td>
-                                {% endif %}
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    {% for mov in top_movies %}
-                        <tr>
-                            <td><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
-                            <td>{{ mov.rating_count }}</td>
-                        </tr>
-                    {% endfor %}
-                {% endif %}
-            </table>
+        <table class="table table-hover">
+            <th>Movie</th>
+            <th>Number of Ratings</th>
+            {% if request.user.is_authenticated %}
+                <th>Seen</th>
+                <tbody>
+                {% for tup in top_movies %}
+                    <tr>
+                        <td class="movie-entry"><a href="{% url 'show_movie' tup.0.id %}">{{ tup.0.title }}</a></td>
+                        <td>{{ tup.0.rating_count }}</td>
+                        {% if tup.1 %}
+                            <td><img src={% static "Check_mark.png" %}/></td>
+                        {% else %}
+                            <td><a href="{% url 'show_movie' tup.0.id %}">Check It Out</a></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% else %}
+                {% for mov in top_movies %}
+                    <tr>
+                        <td><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
+                        <td>{{ mov.rating_count }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
 
-        </div>
+    </div>
 
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center" style="color: coral">{{ movie.title }}</h2>
+    <h2 align="center">{{ movie.title }}</h2>
     <h3 align="center">Genres: {% for genre in genres %}
                                 {{ genre }} |
                                 {% endfor %}
@@ -12,19 +12,21 @@
             {% if rate %}
                 <a href="{% url 'rate_movie' movie.id %}">Rate This Movie</a>
                 {% else %}
-                    <p>You rated this movie: {{ user_rating }}</p>
+                    <p>You rated this movie: {{ user_rating.rating }}</p>
                     <a href="{% url 'rate_movie' movie.id %}">Change Your Rating</a>
             {% endif %}
             <h4>Average Rating: {{ average|floatformat:"2" }}</h4>
-            <table border="1" bgcolor="#fffacd">
+            <table class="table table-hover">
                 <th>User</th>
                 <th>Rating</th>
-                {% for tup in ratings %}
+                <tbody>
+                {% for rating in ratings %}
                 <tr>
-                    <td><a href="{% url 'show_user' tup.1 %}">{{ tup.1.user.username }}</a></td>
-                    <td><a href="{% url 'show_rating' tup.2.id %}">{{ tup.0 }}</a></td>
+                    <td><a href="{% url 'show_user' rating.userid.id %}">{{ rating.userid.id }}</a></td>
+                    <td><a href="{% url 'show_rating' rating.id %}">{{ rating.rating }}</a></td>
                 </tr>
                 {% endfor %}
+                </tbody>
             </table>
 
         </div>

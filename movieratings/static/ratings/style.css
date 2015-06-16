@@ -1,0 +1,62 @@
+table {
+    border-collapse: collapse;
+    border-spacing: 8px
+}
+
+.table-hover .movie-entry {
+    text-align: left;
+}
+
+.table-hover th:hover {
+    background-color: #2b3e50;
+}
+
+.table-hover th {
+    background-color: #2b3e50;
+}
+
+td {
+    padding: 8px;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+td img {
+    max-width: 20px;
+}
+
+th {
+    font-size: 1.4em;
+    padding: 8px;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+}
+
+body {
+    font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.42857143;
+    color: #ebebeb;
+    background-color: #2b3e50
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: #485563
+}
+
+.navbar {
+    font-size: .9em;
+}
+
+.nav > li > a > img {
+    max-width: 25px;
+}
+
+.navbar-nav > li > a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 21px;
+}

@@ -1,7 +1,7 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center" style="color: coral">User {{ user }}</h2>
+    <h2>User {{ user }}</h2>
 
         <div align="center">
             <p>
@@ -13,21 +13,23 @@
             </p>
 
             {% if average > 0 %}
-                <table border="1" bgcolor="#fffacd">
+                <table class="table table-hover">
                     <th>Movie</th>
                     <th>Rating</th>
                     {% if request.user.is_authenticated %}
                         <th>Action</th>
                     {% endif %}
+                    <tbody>
                     {% for tup in ratings %}
                     <tr>
-                        <td><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1.title }}</a></td>
+                        <td class="movie-entry"><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1.title }}</a></td>
                         <td><a href="{% url 'show_rating' tup.2.id %}">{{ tup.0 }}</a></td>
                         {% if request.user.is_authenticated %}
                             <td><a href="{% url 'rate_movie' tup.1.id %}">Edit | </a><a href="{% url 'delete_rating' tup.2.id %}?next={{request.path}}">Delete</a></td>
                         {% endif %}
                     </tr>
                     {% endfor %}
+                    </tbody>
                 </table>
             {% endif %}
 

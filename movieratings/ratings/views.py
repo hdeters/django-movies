@@ -1,7 +1,7 @@
 from django.db.models import Count, Avg
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Rater, Rating, Genre
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login
 from ratings.forms import UserForm, ProfileForm, NewRatingForm
 from django.contrib import messages
 from django.utils import timezone
@@ -24,7 +24,7 @@ def index(request):
 def show_user(request, user_id):
     user = Rater.raters.get(pk=user_id)
     usrname = user.user.get_username()
-    ratings = Rating.ratings.filter(userid=user_id)
+    ratings = Rating.ratings.filter(userid=user_id).select_related()
     movs = []
     for rating in ratings:
         movs.append(rating.movieid)
@@ -55,10 +55,13 @@ def show_rating(request, rating_id):
     review = rating.review
     user = rating.userid.user.get_username()
     if request.user.is_authenticated():
+        usrname = request.user.get_username()
         if Rating.ratings.filter(movieid=movie.id, userid=request.user.rater.id).exists():
             show_rate_movie = False
             user_rating = Rating.ratings.filter(movieid=movie.id, userid=request.user.rater.id)[0]
-            usrname = request.user.get_username()
+        else:
+            user_rating = 0
+
     else:
         show_rate_movie = True
         usrname = None
@@ -79,36 +82,27 @@ def show_rating(request, rating_id):
 def show_movie(request, movie_id):
     show_rate_movie = True
     movie = Movie.movies.get(pk=movie_id)
-    ratings = Rating.ratings.filter(movieid=movie_id)
+    average = movie.get_average_rating
+    ratings = Rating.ratings.filter(movieid=movie_id).select_related()
     genres = movie.get_genres
-    users = []
-    rates = []
     user_rating = 0
-    for rating in ratings:
-        users.append(rating.userid)
-        rates.append(rating.rating)
-
-    average = sum(rates) / len(rates)
-    zipped = zip(rates, users, ratings)
 
     if request.user.is_authenticated():
         current_user = request.user.rater
-        if current_user in users:
+        if Rating.ratings.filter(movieid=movie_id, userid=current_user.id).exists():
             show_rate_movie = False
-            for rating in ratings:
-                if rating.userid == current_user:
-                    user_rating = rating.rating
+            user_rating = Rating.ratings.get(pk=current_user.id)
         else:
             show_rate_movie = True
 
     return render(request,
                   "ratings/show_movie.html",
                   {"movie": movie,
-                   "average": average,
-                   "ratings": zipped,
+                   "ratings": ratings,
                    "rate": show_rate_movie,
                    "user_rating": user_rating,
-                   "genres": genres,})
+                   "genres": genres,
+                   "average": average})
 
 @login_required(login_url='/login/')
 def rate_movie(request, movie_id):

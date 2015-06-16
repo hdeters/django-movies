@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db.models import Count, Avg
 
 
 # Create your models here.
@@ -22,6 +23,11 @@ class Movie(models.Model):
     @property
     def get_genres(self):
         return [the_genre.name for the_genre in self.genre.all()]
+
+    @property
+    def get_average_rating(self):
+        average = self.rating_set.aggregate(Avg('rating'))['rating__avg']
+        return average
 
 
 class Rater(models.Model):
