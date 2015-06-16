@@ -2,6 +2,11 @@
 
 {% block content %}
     <h2 align="center" style="color: coral">{{ movie.title }}</h2>
+    <h3 align="center">Genres: {% for genre in genres %}
+                                {{ genre }} |
+                                {% endfor %}
+
+    </h3>
 
         <div align="center">
             {% if rate %}
@@ -17,7 +22,7 @@
                 {% for tup in ratings %}
                 <tr>
                     <td><a href="{% url 'show_user' tup.1 %}">{{ tup.1.user.username }}</a></td>
-                    <td>{{ tup.0 }}</td>
+                    <td><a href="{% url 'show_rating' tup.2.id %}">{{ tup.0 }}</a></td>
                 </tr>
                 {% endfor %}
             </table>

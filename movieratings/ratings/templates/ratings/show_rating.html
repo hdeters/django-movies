@@ -1,0 +1,24 @@
+{% extends "ratings/base.html" %}
+
+{% block content %}
+    <h2 align="center" style="color: coral">{{ movie.title }}</h2>
+    <h3 align="center">Genres: {% for genre in genres %}
+                                {{ genre }} |
+                                {% endfor %}
+    </h3>
+
+        <div align="center">
+            <h4>{{ user }} rated this: {{ rating.rating }}</h4>
+            <h4>{{ user }}'s Review:</h4>
+            <p>{{ review }}</p>
+            {% if request.user.is_authenticated %}
+                {% if rate %}
+                    <a href="{% url 'rate_movie' movie.id %}">Rate This Movie</a>
+                {% else %}
+                    <p>You rated this movie: {{ user_rating.rating }}</p>
+                    <a href="{% url 'rate_movie' movie.id %}">Change Your Rating</a>
+                {% endif %}
+            {% endif %}
+        </div>
+
+{% endblock %}

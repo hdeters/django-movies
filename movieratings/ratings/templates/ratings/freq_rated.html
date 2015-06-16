@@ -1,21 +1,21 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center" style="color: coral">Top Movies</h2>
+    <h2 align="center" style="color: coral">Most Frequently Rated Movies</h2>
     <h2 align="center" style="color: coral"><a href="{% url 'show_genres' %}">Genres</a></h2>
-    <h2 align="center" style="color: coral"><a href="{% url 'freq_rated' %}">Most Frequently Rated</a></h2>
+    <h2 align="center" style="color: coral"><a href="{% url 'index' %}">Top Movies</a></h2>
 
         <div align="center">
 
             <table border="1" bgcolor="#fffacd">
                 <th>Movie</th>
-                <th>Rating</th>
+                <th>Number of Ratings</th>
                 {% if request.user.is_authenticated %}
                     <th>Seen</th>
                     {% for tup in top_movies %}
                         <tr>
                             <td><a href="{% url 'show_movie' tup.0.id %}">{{ tup.0.title }}</a></td>
-                            <td>{{ tup.0.avg_rating|floatformat:"2" }}</td>
+                            <td>{{ tup.0.rating_count }}</td>
                                 {% if tup.1 %}
                                     <td>Seen It</td>
                                 {% else %}
@@ -27,7 +27,7 @@
                     {% for mov in top_movies %}
                         <tr>
                             <td><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
-                            <td>{{ mov.avg_rating|floatformat:"2" }}</td>
+                            <td>{{ mov.rating_count }}</td>
                         </tr>
                     {% endfor %}
                 {% endif %}

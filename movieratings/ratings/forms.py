@@ -17,6 +17,8 @@ class ProfileForm(forms.ModelForm):
 
 class NewRatingForm(forms.ModelForm):
     rating = forms.ChoiceField(choices=((1,1), (2,2), (3,3), (4,4), (5,5)))
+    review = forms.Textarea()
+
     class Meta:
         model = Rating
-        fields = ('movieid', 'rating',)
+        fields = ('movieid', 'rating', 'review')

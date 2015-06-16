@@ -1,15 +1,13 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2 align="center" style="color: coral">Top Movies</h2>
-    <h2 align="center" style="color: coral"><a href="{% url 'show_genres' %}">Genres</a></h2>
-    <h2 align="center" style="color: coral"><a href="{% url 'freq_rated' %}">Most Frequently Rated</a></h2>
+    <h2 align="center" style="color: coral">Top Movies in {{ genre }}</h2>
 
         <div align="center">
 
             <table border="1" bgcolor="#fffacd">
                 <th>Movie</th>
-                <th>Rating</th>
+                <th>Average Rating</th>
                 {% if request.user.is_authenticated %}
                     <th>Seen</th>
                     {% for tup in top_movies %}
