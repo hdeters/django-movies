@@ -15,12 +15,12 @@
                 <tbody>
                     {% for mov in top_movies %}
                         <tr>
-                            <td class="movie-entry"><a href="{% url 'show_movie' tup.0.id %}">{{ tup.0.title }}</a></td>
-                            <td>{{ tup.0.avg_rating|floatformat:"2" }}</td>
-                            {% if tup.0.id in user_ratings %}
+                            <td class="movie-entry"><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
+                            <td>{{ mov.avg_rating|floatformat:"2" }}</td>
+                            {% if mov.id in user_ratings %}
                                 <td><img src={% static "Check_mark.png" %}/></td>
                             {% else %}
-                                <td><a href="{% url 'show_movie' tup.0.id %}">Check It Out</a></td>
+                                <td><a href="{% url 'show_movie' mov.id %}">Check It Out</a></td>
                             {% endif %}
                         </tr>
                     {% endfor %}

@@ -1,5 +1,6 @@
 from django.db.models import Count, Avg
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
 from .models import Movie, Rater, Rating, Genre
 from django.contrib.auth import authenticate, login
 from ratings.forms import UserForm, ProfileForm, NewRatingForm
@@ -7,18 +8,68 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
-# Create your views here.
 
-def index(request):
-    top_movies = Movie.movies.annotate(rating_count=Count('rating'),
-                                        avg_rating=Avg('rating__rating'),).filter(rating_count__gte=10).order_by('-avg_rating')[:20]
+class MovieListView(ListView):
+    model = Movie
+    context_object_name = 'top_movies'
+    queryset = Movie.movies.annotate(rating_count=Count('rating'),
+                                     avg_rating=Avg('rating__rating'), ).filter(rating_count__gte=7).order_by(
+        '-avg_rating')
+    paginate_by = 20
+    template_name = 'ratings/movie_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["header"] = "Top Movies"
+        if self.request.user.is_authenticated():
+            current_user = self.request.user.rater
+            user_ratings = Rating.ratings.filter(userid=current_user).values_list('movieid', flat=True)
+        else:
+            user_ratings = []
+        context["user_ratings"] = user_ratings
+        return context
+
+
+def show_genres(request):
+    genres = Genre.objects.all()
+    return render(request, 'ratings/show_genres.html', {"genres": genres})
+
+
+class GenreListView(ListView):
+    model = Movie
+    context_object_name = 'top_genre'
+    paginate_by = 20
+    template_name = 'ratings/genre_list.html'
+
+    def get_queryset(self):
+        the_genre = Genre.objects.get(pk=self.kwargs['genre_id'])
+        return Movie.movies.annotate(rating_count=Count('rating'),
+                                         avg_rating=Avg('rating__rating'), ).filter(rating_count__gte=7,
+                                                                                    genre=the_genre).order_by(
+            '-avg_rating')
+
+    def get_context_data(self, **kwargs):
+        the_genre = Genre.objects.get(pk=self.kwargs['genre_id'])
+        context = super().get_context_data(**kwargs)
+        context["header"] = the_genre.name
+        if self.request.user.is_authenticated():
+            current_user = self.request.user.rater
+            user_ratings = Rating.ratings.filter(userid=current_user).values_list('movieid', flat=True)
+        else:
+            user_ratings = []
+        context["user_ratings"] = user_ratings
+        return context
+
+
+def freq_rated(request):
+    top_movies = Movie.movies.annotate(rating_count=Count('rating'), ).order_by('-rating_count')[:20]
     if request.user.is_authenticated():
         current_user = request.user.rater
         seen = [Rating.ratings.filter(movieid=mov.id, userid=current_user).exists() for mov in top_movies]
         zipped = zip(top_movies, seen)
-        return render(request, 'ratings/index.html', {"top_movies": zipped})
+        return render(request, 'ratings/freq_rated.html', {"top_movies": zipped})
     else:
-        return render(request, 'ratings/index.html', {"top_movies": top_movies})
+        return render(request, 'ratings/freq_rated.html', {"top_movies": top_movies})
 
 
 def show_user(request, user_id):
@@ -45,6 +96,7 @@ def show_user(request, user_id):
                    "zipcode": user.zipcode,
                    "ratings": zipped,
                    "username": usrname})
+
 
 def show_rating(request, rating_id):
     show_rate_movie = True
@@ -79,6 +131,7 @@ def show_rating(request, rating_id):
                    "user_rating": user_rating,
                    "review": review})
 
+
 def show_movie(request, movie_id):
     show_rate_movie = True
     movie = Movie.movies.get(pk=movie_id)
@@ -104,39 +157,44 @@ def show_movie(request, movie_id):
                    "genres": genres,
                    "average": average})
 
+
 @login_required(login_url='/login/')
 def rate_movie(request, movie_id):
     current_user_id = request.user.rater
     if Rating.ratings.filter(movieid=movie_id, userid=current_user_id).exists():
         old_rating = Rating.ratings.filter(movieid=movie_id).get(userid=current_user_id)
         if request.method == "GET":
-            rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id}, instance=old_rating)
-            return render(request, "ratings/rate_movie.html", {'rate_form': rate_form, 'movie_var': movie_id,})
+            rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id},
+                                      instance=old_rating)
+            return render(request, "ratings/rate_movie.html", {'rate_form': rate_form, 'movie_var': movie_id, })
         elif request.method == "POST":
-            rate_form = NewRatingForm(request.POST, initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id}, instance=old_rating)
+            rate_form = NewRatingForm(request.POST,
+                                      initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id},
+                                      instance=old_rating)
             if rate_form.is_valid():
                 rate_form.save()
                 old_rating.save()
                 messages.add_message(
-                request,
-                messages.SUCCESS,
-                "Rating Successfully Changed.")
+                    request,
+                    messages.SUCCESS,
+                    "Rating Successfully Changed.")
             return redirect('/movie/{}'.format(movie_id))
     else:
         if request.method == "GET":
             rate_form = NewRatingForm(initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id})
-            return render(request, "ratings/rate_movie.html", {'rate_form': rate_form, 'movie_var': movie_id,})
+            return render(request, "ratings/rate_movie.html", {'rate_form': rate_form, 'movie_var': movie_id, })
         elif request.method == "POST":
-            rate_form = NewRatingForm(request.POST, initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id})
+            rate_form = NewRatingForm(request.POST,
+                                      initial={'movieid': Movie.movies.get(pk=movie_id), 'userid': current_user_id})
             if rate_form.is_valid():
                 new_rate = rate_form.save(commit=False)
                 new_rate.userid = request.user.rater
                 new_rate.date = timezone.now()
                 new_rate.save()
                 messages.add_message(
-                request,
-                messages.SUCCESS,
-                "Movie Successfully Rated.")
+                    request,
+                    messages.SUCCESS,
+                    "Movie Successfully Rated.")
             return redirect('/movie/{}'.format(movie_id))
 
 
@@ -167,37 +225,11 @@ def user_register(request):
             return redirect('index')
     return render(request, "ratings/register.html", {'user_form': user_form, 'profile_form': profile_form})
 
+
 @login_required
 def delete_rating(request, rate_id):
     rating = Rating.ratings.get(pk=rate_id)
     rating.delete()
     messages.add_message(request, messages.SUCCESS,
-                             "You have deleted this rating.")
+                         "You have deleted this rating.")
     return redirect("show_user", request.user.rater.id)
-
-def show_genres(request):
-    genres = Genre.objects.all()
-    return render(request, 'ratings/show_genres.html', {"genres": genres})
-
-def show_genre(request, genre_id):
-    the_genre = Genre.objects.get(pk=genre_id)
-    top_movies = Movie.movies.annotate(rating_count=Count('rating'),
-                                        avg_rating=Avg('rating__rating'),).filter(rating_count__gte=7).order_by('-avg_rating').filter(
-                                        genre=the_genre)[0:20]
-    if request.user.is_authenticated():
-        current_user = request.user.rater
-        seen = [Rating.ratings.filter(movieid=mov.id, userid=current_user).exists() for mov in top_movies]
-        zipped = zip(top_movies, seen)
-        return render(request, 'ratings/show_genre.html', {"top_movies": zipped, "genre": the_genre.name})
-    else:
-        return render(request, 'ratings/show_genre.html', {"top_movies": top_movies, "genre": the_genre.name})
-
-def freq_rated(request):
-    top_movies = Movie.movies.annotate(rating_count=Count('rating'),).order_by('-rating_count')[:20]
-    if request.user.is_authenticated():
-        current_user = request.user.rater
-        seen = [Rating.ratings.filter(movieid=mov.id, userid=current_user).exists() for mov in top_movies]
-        zipped = zip(top_movies, seen)
-        return render(request, 'ratings/freq_rated.html', {"top_movies": zipped})
-    else:
-        return render(request, 'ratings/freq_rated.html', {"top_movies": top_movies})

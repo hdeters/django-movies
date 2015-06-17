@@ -27,7 +27,7 @@
             {% else %}
                 {% for mov in top_movies %}
                     <tr>
-                        <td><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
+                        <td class="movie-entry"><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
                         <td>{{ mov.rating_count }}</td>
                     </tr>
                 {% endfor %}
