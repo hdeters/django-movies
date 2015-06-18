@@ -1,34 +1,38 @@
 {% extends "ratings/base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
 
 {% block content %}
     <h2 align="center">{{ movie.title }}</h2>
-    <h3 align="center">Genres: {% for genre in genres %}
-                                {{ genre }} |
-                                {% endfor %}
+    <h3 align="center">Genres: {% for genre in movie.get_genres %}
+        {{ genre }} |
+    {% endfor %}
 
     </h3>
 
-        <div align="center">
-            {% if rate %}
-                <a href="{% url 'rate_movie' movie.id %}">Rate This Movie</a>
-                {% else %}
-                    <p>You rated this movie: {{ user_rating.rating }}</p>
-                    <a href="{% url 'rate_movie' movie.id %}">Change Your Rating</a>
-            {% endif %}
-            <h4>Average Rating: {{ average|floatformat:"2" }}</h4>
-            <table class="table table-hover">
-                <th>User</th>
-                <th>Rating</th>
-                <tbody>
-                {% for rating in ratings %}
+    <div align="center">
+        {% if rate %}
+            <a href="{% url 'rate_movie' movie.id %}">Rate This Movie</a>
+        {% else %}
+            <p>You rated this movie: {{ user_rating.rating }}</p>
+            <a href="{% url 'update_rate' movie.id %}">Change Your Rating</a>
+        {% endif %}
+        <h4>Average Rating: {{ movie.get_average_rating|floatformat:"2" }}</h4>
+        <table class="table table-hover">
+            <th>User</th>
+            <th>Rating</th>
+            <tbody>
+            {% for rating in ratings %}
                 <tr>
                     <td><a href="{% url 'show_user' rating.userid.id %}">{{ rating.userid.id }}</a></td>
                     <td><a href="{% url 'show_rating' rating.id %}">{{ rating.rating }}</a></td>
                 </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% endfor %}
+            </tbody>
+        </table>
 
-        </div>
-
+    </div>
+    {% if paginate %}
+{#        {% bootstrap_pagination page_obj %}#}
+    {% endif %}
 {% endblock %}

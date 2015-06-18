@@ -1,31 +1,30 @@
 {% extends "ratings/base.html" %}
 
 {% block content %}
-    <h2>User {{ user }}</h2>
+    <h2>{{ user.user.username }}</h2>
 
         <div align="center">
             <p>
-                Username: {{ username }}<br />
-                Age: {{ age }}<br />
-                Gender: {{ gender }}<br />
-                Zip Code: {{ zipcode }}<br />
-                Average Rating: {{ average|floatformat:"2" }}
+                Age: {{ user.age }}<br />
+                Gender: {{ user.gender }}<br />
+                Zip Code: {{ user.zipcode }}<br />
+                Average Rating: {{ user.get_average_rating|floatformat:"2" }}
             </p>
 
-            {% if average > 0 %}
+            {% if user.get_average_rating > 0 %}
                 <table class="table table-hover">
                     <th>Movie</th>
                     <th>Rating</th>
-                    {% if request.user.is_authenticated %}
+                    {% if user == request.user.rater %}
                         <th>Action</th>
                     {% endif %}
                     <tbody>
                     {% for tup in ratings %}
                     <tr>
-                        <td class="movie-entry"><a href="{% url 'show_movie' tup.1.id %}">{{ tup.1.title }}</a></td>
-                        <td><a href="{% url 'show_rating' tup.2.id %}">{{ tup.0 }}</a></td>
-                        {% if request.user.is_authenticated %}
-                            <td><a href="{% url 'rate_movie' tup.1.id %}">Edit | </a><a href="{% url 'delete_rating' tup.2.id %}?next={{request.path}}">Delete</a></td>
+                        <td class="movie-entry"><a href="{% url 'show_movie' tup.0.id %}">{{ tup.0.title }}</a></td>
+                        <td><a href="{% url 'show_rating' tup.1.id %}">{{ tup.1.rating }}</a></td>
+                        {% if user == request.user.rater %}
+                            <td><a href="{% url 'rate_movie' tup.0.id %}">Edit | </a><a href="{% url 'delete_rating' tup.1.id %}?next={{request.path}}">Delete</a></td>
                         {% endif %}
                     </tr>
                     {% endfor %}

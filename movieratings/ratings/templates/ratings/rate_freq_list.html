@@ -1,8 +1,9 @@
 {% extends "ratings/base.html" %}
 {% load staticfiles %}
+{% load bootstrap3 %}
 
 {% block content %}
-    <h2 align="center">Most Frequently Rated Movies</h2>
+    <h2 align="center">{{ header }}</h2>
 
     <div align="center">
 
@@ -12,20 +13,20 @@
             {% if request.user.is_authenticated %}
                 <th>Seen</th>
                 <tbody>
-                {% for tup in top_movies %}
+                {% for mov in freq_movies %}
                     <tr>
-                        <td class="movie-entry"><a href="{% url 'show_movie' tup.0.id %}">{{ tup.0.title }}</a></td>
-                        <td>{{ tup.0.rating_count }}</td>
-                        {% if tup.1 %}
+                        <td class="movie-entry"><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
+                        <td>{{ mov.rating_count }}</td>
+                        {% if mov.id in user_ratings %}
                             <td><img src={% static "Check_mark.png" %}/></td>
                         {% else %}
-                            <td><a href="{% url 'show_movie' tup.0.id %}">Check It Out</a></td>
+                            <td><a href="{% url 'show_movie' mov.id %}">Check It Out</a></td>
                         {% endif %}
                     </tr>
                 {% endfor %}
                 </tbody>
             {% else %}
-                {% for mov in top_movies %}
+                {% for mov in freq_movies %}
                     <tr>
                         <td class="movie-entry"><a href="{% url 'show_movie' mov.id %}">{{ mov.title }}</a></td>
                         <td>{{ mov.rating_count }}</td>
@@ -36,4 +37,5 @@
 
     </div>
 
+{% bootstrap_pagination page_obj %}
 {% endblock %}

@@ -26,7 +26,10 @@ class Movie(models.Model):
 
     @property
     def get_average_rating(self):
-        average = self.rating_set.aggregate(Avg('rating'))['rating__avg']
+        if self.rating_set:
+            average = self.rating_set.aggregate(Avg('rating'))['rating__avg']
+        else:
+            average = 0
         return average
 
 
@@ -37,8 +40,13 @@ class Rater(models.Model):
     user = models.OneToOneField(User, null=True)
     raters = models.Manager()
 
+    @property
+    def get_average_rating(self):
+        average = self.rating_set.aggregate(Avg('rating'))['rating__avg']
+        return average
+
     def __str__(self):
-        return "{}".format(self.id)
+        return "{}".format(self.user.get_username())
 
 def validate_rating(value):
         if 0 < value < 6:

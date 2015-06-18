@@ -1,6 +1,8 @@
 {% extends "ratings/base.html" %}
 {% load staticfiles %}
 {% block content %}
+{% load bootstrap3 %}
+
     <h2>Top Movies in {{ header }}</h2>
 
     <div align="center">
@@ -35,4 +37,5 @@
 
     </div>
 
+{% bootstrap_pagination page_obj %}
 {% endblock %}
